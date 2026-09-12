@@ -29,6 +29,8 @@ export interface AttendanceRecord {
 }
 
 export interface WorkshopEvaluation {
+  workshopId?: string;
+  studentId?: string;
   rating: number; // 1 to 5
   speakerRating: number; // 1 to 5
   contentApplicability: number; // 1 to 5

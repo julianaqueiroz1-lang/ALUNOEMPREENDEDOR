@@ -34,8 +34,10 @@ import { ComplementaryActivitiesView } from './components/ComplementaryActivitie
 import { MomentsGalleryView } from './components/MomentsGalleryView';
 import { CourseEvolutionView } from './components/CourseEvolutionView';
 import { CertificationView } from './components/CertificationView';
+import { MobileBottomBar } from './components/MobileBottomBar';
 
 export default function App() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   // Persistence via localStorage
   const [student, setStudent] = useState<StudentProfile>(() => {
     const saved = localStorage.getItem('ae_student');
@@ -234,7 +236,7 @@ export default function App() {
   const evaluatedWorkshopsCount = workshops.filter((w) => Boolean(w.evaluation)).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans overflow-x-hidden">
       {/* Biometric Facial Recognition Login Modal */}
       {showFacialModal && (
         <FacialLoginModal
@@ -248,15 +250,20 @@ export default function App() {
       {/* Main Navbar */}
       <Navbar
         currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+        onSelectTab={(tab) => {
+          setCurrentTab(tab);
+          setMobileMenuOpen(false);
+        }}
         student={student}
         onLogout={handleLogout}
         onTriggerFacialCheck={() => setShowFacialModal(true)}
         speakersCount={speakers.length}
+        mobileMenuOpen={mobileMenuOpen}
+        onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 md:pb-12">
         {currentTab === 'visao_geral' && (
           <OverviewDashboard
             student={student}
@@ -375,6 +382,17 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Sticky Bottom Navigation */}
+      <MobileBottomBar
+        currentTab={currentTab}
+        onSelectTab={(tab) => {
+          setCurrentTab(tab);
+          setMobileMenuOpen(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenMenu={() => setMobileMenuOpen((prev) => !prev)}
+      />
     </div>
   );
 }

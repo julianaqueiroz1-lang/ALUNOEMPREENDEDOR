@@ -20,8 +20,8 @@ export const FacialLoginModal: React.FC<FacialLoginModalProps> = ({
   const [scanningState, setScanningState] = useState<'idle' | 'scanning' | 'analyzing' | 'success' | 'failed'>('idle');
   const [scanProgress, setScanProgress] = useState<number>(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [studentCpfInput, setStudentCpfInput] = useState<string>(student.cpf);
-  const [studentNameInput, setStudentNameInput] = useState<string>(student.name);
+  const [studentCpfInput, setStudentCpfInput] = useState<string>('');
+  const [studentNameInput, setStudentNameInput] = useState<string>('');
   const [matchScore, setMatchScore] = useState<number>(98.6);
   const [customPhotoUpload, setCustomPhotoUpload] = useState<string | null>(null);
 
@@ -329,8 +329,20 @@ export const FacialLoginModal: React.FC<FacialLoginModalProps> = ({
           {/* Student Identifiers Form Preview */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
             <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>Dados do Aluno para Validação</span>
-              <span className="text-emerald-700 font-semibold">{student.turma}</span>
+              <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                Nova Sessão Limpa • Banco Firestore Conectado
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setStudentNameInput('Mariana Silva');
+                  setStudentCpfInput('123.456.789-00');
+                }}
+                className="text-[11px] text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded font-medium transition"
+              >
+                Preencher Mariana Silva (Exemplo)
+              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -343,8 +355,8 @@ export const FacialLoginModal: React.FC<FacialLoginModalProps> = ({
                     id="input-student-name"
                     value={studentNameInput}
                     onChange={(e) => setStudentNameInput(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
-                    placeholder="Nome Completo"
+                    className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none placeholder:text-slate-400"
+                    placeholder="Ex: Mariana Silva"
                   />
                 </div>
               </div>
@@ -358,14 +370,14 @@ export const FacialLoginModal: React.FC<FacialLoginModalProps> = ({
                   id="input-student-cpf"
                   value={studentCpfInput}
                   onChange={(e) => setStudentCpfInput(e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none placeholder:text-slate-400"
                   placeholder="000.000.000-00"
                 />
               </div>
             </div>
 
             <div className="flex items-center justify-between text-xs text-slate-600 pt-1">
-              <span>Matrícula: <strong className="text-slate-800">{student.matricula}</strong></span>
+              <span>Turma: <strong className="text-slate-800">Turma 2026.1</strong></span>
               <label className="cursor-pointer text-teal-700 hover:text-teal-800 font-semibold underline text-xs">
                 Subir outra foto de rosto
                 <input

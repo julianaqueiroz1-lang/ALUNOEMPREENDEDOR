@@ -212,7 +212,7 @@ export const CertificationView: React.FC<CertificationViewProps> = ({
             </p>
           </div>
 
-          <form onSubmit={handleValidateCpfAndUnlock} className="max-w-sm mx-auto space-y-3">
+          <form onSubmit={handleValidateCpfAndUnlock} className="max-w-md mx-auto space-y-3">
             <div>
               <input
                 type="text"
@@ -222,8 +222,15 @@ export const CertificationView: React.FC<CertificationViewProps> = ({
                 placeholder="000.000.000-00"
                 className="w-full text-center text-lg font-mono font-bold tracking-widest px-4 py-3 bg-slate-50 border-2 border-slate-300 rounded-xl focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 outline-none text-slate-900"
               />
-              <p className="text-[11px] text-slate-400 mt-1">
-                Dica de teste rápido: Aluna cadastrada com CPF <strong className="text-emerald-700 cursor-pointer hover:underline" onClick={() => setEnteredCpf(student.cpf)}>{student.cpf}</strong>
+              <p className="text-[11px] text-slate-500 mt-1.5 flex items-center justify-center gap-1">
+                <span>Aluna autenticada:</span>
+                <strong
+                  className="text-emerald-700 cursor-pointer hover:underline bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200"
+                  onClick={() => setEnteredCpf(student.cpf)}
+                  title="Clique para preencher o CPF automaticamente"
+                >
+                  {student.cpf}
+                </strong>
               </p>
             </div>
 
@@ -237,10 +244,25 @@ export const CertificationView: React.FC<CertificationViewProps> = ({
             <button
               type="submit"
               id="btn-validate-cpf-certificate"
-              className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <Unlock className="w-4 h-4" />
               Validar CPF e Gerar Certificado
+            </button>
+
+            {/* Quick 1-click unlock button for the logged in student */}
+            <button
+              type="button"
+              id="btn-quick-unlock-certificate"
+              onClick={() => {
+                setEnteredCpf(student.cpf);
+                setIsUnlocked(true);
+                setErrorMessage(null);
+              }}
+              className="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 active:scale-[0.98] text-emerald-900 border border-emerald-300/80 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Liberar Direto com Biometria de {student.name.split(' ')[0]}</span>
             </button>
           </form>
         </div>

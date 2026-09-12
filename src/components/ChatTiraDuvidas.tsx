@@ -11,8 +11,14 @@ import {
   RotateCcw,
   Lightbulb,
   HelpCircle,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Database
 } from 'lucide-react';
+import { createCleanAssistantSession } from '../lib/firebase';
+
+const CLEAN_SESSION_PROMPT =
+  'Você é um assistente educacional para este aluno. Esta é uma nova sessão. Não assuma nenhum contexto ou histórico anterior a esta conversa atual.';
 
 interface ChatTiraDuvidasProps {
   student: StudentProfile;
@@ -25,11 +31,15 @@ export const ChatTiraDuvidas: React.FC<ChatTiraDuvidasProps> = ({
   initialQuery,
   onClearInitialQuery,
 }) => {
+  const [sessionId, setSessionId] = useState<string>(() =>
+    `sess_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`
+  );
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'msg-welcome',
       sender: 'assistant',
-      text: `Olá, ${student.name.split(' ')[0]}! Sou o **Mentor Virtual do Aluno Empreendedor** 🚀.\n\nEstou aqui para tirar qualquer dúvida sobre as oficinas, Business Model Canvas, precificação financeira, marketing digital, preparação do pitch de 3 minutos, formalização MEI e validação de MVP. Como posso te ajudar hoje?`,
+      text: `Olá${student.name ? `, ${student.name.split(' ')[0]}` : ''}! Sou o **Assistente Educacional Interativo** do Aluno Empreendedor.\n\n🛡️ **Nova Sessão Limpa Ativa**: Cada interação é tratada como ponto de partida absoluto. Não assumo nenhum contexto, histórico ou resposta de conversas passadas.\n\nEstou pronto para guiar você sobre as oficinas, Business Model Canvas, precificação financeira, marketing digital, preparação do pitch de 3 minutos, formalização MEI e validação de MVP. Como posso te ajudar hoje?`,
       timestamp: 'Agora',
       source: 'local_mentor',
     },
@@ -39,6 +49,11 @@ export const ChatTiraDuvidas: React.FC<ChatTiraDuvidasProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    // Register clean session in Firestore on mount
+    createCleanAssistantSession(student.id || 'aluno_atual');
+  }, [student.id]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -85,6 +100,8 @@ export const ChatTiraDuvidas: React.FC<ChatTiraDuvidasProps> = ({
         body: JSON.stringify({
           message: text,
           studentName: student.name,
+          sessionId,
+          cleanSession: true,
         }),
       });
 
@@ -161,11 +178,15 @@ Recomendo testar essa hipótese diretamente com 3 a 5 potenciais usuários reais
   };
 
   const handleClearChat = () => {
+    const newSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    setSessionId(newSessionId);
+    setInputMessage('');
+    createCleanAssistantSession(student.id || 'aluno_atual');
     setMessages([
       {
-        id: 'msg-welcome',
+        id: `msg-welcome-${Date.now()}`,
         sender: 'assistant',
-        text: `Chat reiniciado! Estou pronto para novas dúvidas sobre suas oficinas e projetos do Aluno Empreendedor.`,
+        text: `🔄 **Nova Sessão Limpa Inicializada** (${newSessionId})\n\n"Você é um assistente educacional para este aluno. Esta é uma nova sessão. Não assuma nenhum contexto ou histórico anterior a esta conversa atual."\n\nComo posso guiar você em seus estudos ou projetos hoje?`,
         timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
         source: 'local_mentor',
       },
@@ -183,24 +204,53 @@ Recomendo testar essa hipótese diretamente com 3 a 5 potenciais usuários reais
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold font-['Space_Grotesk'] text-slate-900">
-                Chat Tira-Dúvidas Empreendedor
+                Assistente Educacional do Aluno
               </h2>
               <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-amber-500" /> IA & Mentoria
+                <Sparkles className="w-3 h-3 text-amber-500" /> Sessão Ativa
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Tire dúvidas instantâneas sobre Canvas, Finanças, Pitch, Validação e Oficinas.
+              Guia interativo para tirar dúvidas de negócios, finanças, pitch, oficinas e validação.
             </p>
           </div>
         </div>
 
-        <button
-          onClick={handleClearChat}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
-        >
-          <RotateCcw className="w-3.5 h-3.5" /> Limpar Conversa
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleClearChat}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-lg transition font-medium cursor-pointer"
+            title="Gera uma nova sessão limpa sem histórico anterior"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> Iniciar Nova Sessão Limpa
+          </button>
+        </div>
+      </div>
+
+      {/* Mandatory Session Isolation Banner */}
+      <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-xl p-3.5 border border-emerald-200/80 flex items-start gap-3 text-xs shadow-2xs">
+        <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+          <ShieldCheck className="w-4 h-4" />
+        </div>
+        <div className="flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-emerald-900">Diretrizes Obrigatórias de Estado e Sessão</span>
+              <span className="bg-emerald-200/80 text-emerald-900 font-mono text-[10px] font-bold px-1.5 py-0.2 rounded">
+                {sessionId}
+              </span>
+            </div>
+            <span className="text-[10px] text-emerald-700 font-semibold bg-white/80 px-2 py-0.5 rounded-full border border-emerald-200">
+              Isolamento de Sessão Ativo
+            </span>
+          </div>
+          <p className="italic text-emerald-800 mt-1 font-medium leading-relaxed">
+            &ldquo;Você é um assistente educacional para este aluno. Esta é uma nova sessão. Não assuma nenhum contexto ou histórico anterior a esta conversa atual.&rdquo;
+          </p>
+          <p className="text-[11px] text-emerald-700/90 mt-0.5">
+            Ao recarregar ou entrar, uma sessão zerada é iniciada sem resíduo de testes passados. Respostas geradas estritamente com base nos dados fornecidos nesta sessão.
+          </p>
+        </div>
       </div>
 
       {/* Suggested Quick Question Chips */}

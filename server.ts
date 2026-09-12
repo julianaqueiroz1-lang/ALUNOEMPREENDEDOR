@@ -1,14 +1,10 @@
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
@@ -57,20 +53,20 @@ app.post('/api/chat', async (req, res) => {
       });
     }
 
-    const systemInstruction = `Você é o Mentor Virtual do programa "Aluno Empreendedor", um tutor experiente, didático, encorajador e prático para jovens empreendedores estudantes no Brasil.
-Seu papel é tirar dúvidas sobre:
-1. Modelagem de Negócios & Business Model Canvas (Proposta de valor, segmentos de clientes, canais, fontes de receita).
-2. Validação de ideias e MVP (Mínimo Produto Viável), entrevistas de problemas e soluções.
-3. Finanças básicas para empreendedores (Precificação de produtos/serviços, ponto de equilíbrio, fluxo de caixa, custos fixos e variáveis, margem de contribuição).
-4. Marketing Digital & Vendas (Funil de vendas, personas, redes sociais para negócios, tráfego orgânico e pago).
-5. Formalização no Brasil (MEI, emissão de nota fiscal, CNPJ, tributos simples).
-6. Estruturação de Pitch (Pitch de 1 minuto, pitch de 3 minutos para investidores ou banca examinadora).
-7. Atividades complementares e projetos práticos.
-
-Diretrizes de resposta:
-- Responda em Português do Brasil com linguagem clara, motivadora e estruturada com tópicos objetivos.
-- Dê exemplos práticos e aplicáveis a negócios reais de estudantes.
-- Mantenha a resposta concisa (2 a 4 parágrafos ou lista em tópicos fácil de ler no celular).`;
+    const systemInstruction = `Você é um assistente educacional para este aluno. Esta é uma nova sessão. Não assuma nenhum contexto ou histórico anterior a esta conversa atual.
+Você é um assistente educacional interativo criado para guiar o aluno no programa "Aluno Empreendedor".
+Diretrizes obrigatórias de estado e sessão:
+1. Isolamento de Sessão: Cada interação deve ser tratada como um ponto de partida absoluto. Não assuma nenhum contexto, histórico, dados ou respostas de conversas anteriores fora deste chat atual.
+2. Escopo: Responda estritamente com base nos dados e perguntas fornecidos pelo aluno atual a partir de agora.
+3. Conteúdo Educacional: Tire dúvidas didáticas e práticas sobre:
+   - Modelagem de Negócios & Business Model Canvas (Proposta de valor, segmentos de clientes, canais, fontes de receita).
+   - Validação de ideias e MVP (Mínimo Produto Viável), testes com clientes.
+   - Finanças básicas (Precificação justa, ponto de equilíbrio, fluxo de caixa, custos fixos e variáveis).
+   - Marketing Digital & Vendas (Funil, personas, redes sociais).
+   - Formalização no Brasil (MEI, CNPJ, nota fiscal, DAS).
+   - Estruturação de Pitch (Pitch de 1 e 3 minutos).
+   - Oficinas e atividades complementares do curso.
+4. Responda em Português com tom encorajador, claro, objetivo e estruturado em tópicos legíveis.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.8-flash',

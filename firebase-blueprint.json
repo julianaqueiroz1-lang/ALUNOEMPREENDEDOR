@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Perfil do Aluno Empreendedor cadastrado no sistema",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "cpf": { "type": "string" },
+        "email": { "type": "string" },
+        "school": { "type": "string" },
+        "turma": { "type": "string" },
+        "photo": { "type": "string" },
+        "businessIdea": { "type": "string" },
+        "totalHours": { "type": "number" },
+        "requiredHours": { "type": "number" },
+        "attendancePercentage": { "type": "number" }
+      },
+      "required": ["name", "cpf"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Registro de presença biométrica facial ou validação presencial",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workshopId": { "type": "string" },
+        "workshopTitle": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "status": { "type": "string" },
+        "method": { "type": "string" }
+      },
+      "required": ["workshopId", "studentId", "status"]
+    },
+    "WorkshopEvaluation": {
+      "title": "WorkshopEvaluation",
+      "description": "Avaliação de oficina preenchida pelo aluno",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workshopId": { "type": "string" },
+        "workshopTitle": { "type": "string" },
+        "studentId": { "type": "string" },
+        "rating": { "type": "number" },
+        "speakerRating": { "type": "number" },
+        "feedback": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["workshopId", "studentId", "rating"]
+    },
+    "ComplementaryActivity": {
+      "title": "ComplementaryActivity",
+      "description": "Atividade complementar submetida pelo aluno",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "hours": { "type": "number" },
+        "status": { "type": "string" },
+        "proofDescription": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["studentId", "title", "hours", "status"]
+    },
+    "ChatSession": {
+      "title": "ChatSession",
+      "description": "Sessão isolada do assistente educacional do aluno",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "messageCount": { "type": "number" }
+      },
+      "required": ["sessionId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Coleção de perfis de alunos"
+    },
+    "/attendance/{recordId}": {
+      "schema": "AttendanceRecord",
+      "description": "Coleção de registros de presença"
+    },
+    "/evaluations/{evalId}": {
+      "schema": "WorkshopEvaluation",
+      "description": "Coleção de avaliações de oficinas"
+    },
+    "/activities/{activityId}": {
+      "schema": "ComplementaryActivity",
+      "description": "Coleção de atividades complementares"
+    },
+    "/chat_sessions/{sessionId}": {
+      "schema": "ChatSession",
+      "description": "Sessões limpas do assistente educacional"
+    }
+  }
+}

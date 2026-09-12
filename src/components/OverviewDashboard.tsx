@@ -67,59 +67,92 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* Student Welcome Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 rounded-3xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden">
         {/* Subtle decorative circles */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-emerald-500/10 pointer-events-none" />
         <div className="absolute bottom-0 right-32 -mb-16 w-48 h-48 rounded-full bg-amber-400/10 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-4">
-            <div className="relative">
+            <div className="relative shrink-0">
               <img
                 src={student.avatarUrl}
                 alt={student.name}
                 referrerPolicy="no-referrer"
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-4 ring-emerald-400/50 shadow-md"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-4 ring-emerald-400/50 shadow-md cursor-pointer hover:opacity-90 transition"
+                onClick={() => onNavigate('frequencia')}
+                title="Clique para ver seu histórico de frequência e biometria"
               />
               <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full ring-2 ring-emerald-900" title="Biometria Ativa">
                 <ShieldCheck className="w-4 h-4" />
               </span>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5 flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs bg-emerald-500/30 text-emerald-200 px-2.5 py-0.5 rounded-full font-bold border border-emerald-400/30">
+                <span className="text-xs bg-emerald-500/30 text-emerald-200 px-2.5 py-0.5 rounded-full font-bold border border-emerald-400/30 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-300" />
                   Aluno Empreendedor Ativo
                 </span>
                 <span className="text-xs bg-white/15 text-white px-2 py-0.5 rounded-full font-medium">
                   {student.turma || 'Turma 2026.1'}
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-['Space_Grotesk'] tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-['Space_Grotesk'] tracking-tight truncate">
                 Olá, {student.name}!
               </h2>
               <p className="text-xs sm:text-sm text-emerald-100/80">
                 Matrícula: <strong className="text-white">{student.matricula}</strong> • CPF:{' '}
                 <strong className="text-white">{student.cpf}</strong>
               </p>
+
+              {/* Quick Navigation Chips */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('cronograma')}
+                  className="text-[11px] bg-white/10 hover:bg-white/20 active:scale-95 text-emerald-100 px-2.5 py-1 rounded-lg border border-white/15 transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Calendar className="w-3 h-3 text-emerald-300" />
+                  Oficinas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('frequencia')}
+                  className="text-[11px] bg-white/10 hover:bg-white/20 active:scale-95 text-emerald-100 px-2.5 py-1 rounded-lg border border-white/15 transition flex items-center gap-1 cursor-pointer"
+                >
+                  <CheckSquare className="w-3 h-3 text-emerald-300" />
+                  Presenças
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('palestrantes')}
+                  className="text-[11px] bg-white/10 hover:bg-white/20 active:scale-95 text-emerald-100 px-2.5 py-1 rounded-lg border border-white/15 transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Star className="w-3 h-3 text-amber-300" />
+                  Professores
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 sm:pt-0">
             <button
+              id="btn-banner-chat"
               onClick={() => onNavigate('chat_duvidas')}
-              className="px-4 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold rounded-xl border border-white/25 transition flex items-center gap-2"
+              className="px-4 py-3 bg-white/20 hover:bg-white/30 active:scale-95 backdrop-blur-md text-white text-xs font-bold rounded-xl border border-white/25 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
-              <MessageSquare className="w-4 h-4 text-amber-300" />
-              Tirar Dúvida no Chat
+              <MessageSquare className="w-4 h-4 text-amber-300 shrink-0" />
+              <span>Tirar Dúvida no Chat</span>
             </button>
             <button
+              id="btn-banner-certificate"
               onClick={() => onNavigate('certificacao')}
-              className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl shadow-lg transition flex items-center gap-2"
+              className="px-4 py-3 bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 text-xs font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <FileCheck className="w-4 h-4" />
-              Acessar Certificado
+              <FileCheck className="w-4 h-4 shrink-0" />
+              <span>Acessar Certificado</span>
             </button>
           </div>
         </div>
@@ -129,11 +162,13 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Frequencia */}
         <div
+          id="stat-card-frequencia"
           onClick={() => onNavigate('frequencia')}
-          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition cursor-pointer group"
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-400 active:scale-[0.98] transition cursor-pointer group"
+          title="Clique para ver o histórico detalhado de presenças"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:bg-emerald-100 transition">
               <CheckSquare className="w-5 h-5" />
             </div>
             <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
@@ -150,16 +185,21 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
             <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${attendanceRate}%` }} />
           </div>
+          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-emerald-700 font-semibold group-hover:translate-x-0.5 transition">
+            <span>Ver Registro Completo</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
         </div>
 
         {/* Card 2: Carga Horária Total (Ajustável) */}
         <div
+          id="stat-card-horas"
           onClick={() => setIsWorkloadModalOpen(true)}
-          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-teal-300 transition cursor-pointer group relative"
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-teal-400 active:scale-[0.98] transition cursor-pointer group relative"
           title="Clique para ajustar a carga horária do curso"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center group-hover:bg-teal-100 transition">
               <Clock className="w-5 h-5" />
             </div>
             <button
@@ -168,7 +208,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                 e.stopPropagation();
                 setIsWorkloadModalOpen(true);
               }}
-              className="text-[11px] font-bold text-teal-800 bg-teal-100 hover:bg-teal-200 px-2.5 py-0.5 rounded-full flex items-center gap-1 transition"
+              className="text-[11px] font-bold text-teal-800 bg-teal-100 hover:bg-teal-200 px-2.5 py-0.5 rounded-full flex items-center gap-1 transition cursor-pointer"
             >
               <span>Ajustar Horas</span>
             </button>
@@ -183,15 +223,21 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
             <div className="h-full bg-teal-500 rounded-full" style={{ width: '100%' }} />
           </div>
+          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-teal-700 font-semibold group-hover:translate-x-0.5 transition">
+            <span>Clique para Ajustar</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
         </div>
 
         {/* Card 3: Oficinas & Treinamentos */}
         <div
+          id="stat-card-oficinas"
           onClick={() => onNavigate('cronograma')}
-          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-purple-300 transition cursor-pointer group"
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-purple-400 active:scale-[0.98] transition cursor-pointer group"
+          title="Clique para ver todas as oficinas e cronograma"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center group-hover:bg-purple-100 transition">
               <Calendar className="w-5 h-5" />
             </div>
             <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
@@ -208,15 +254,21 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
             <div className="h-full bg-purple-500 rounded-full" style={{ width: '100%' }} />
           </div>
+          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-purple-700 font-semibold group-hover:translate-x-0.5 transition">
+            <span>Ver Cronograma</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
         </div>
 
         {/* Card 4: Momentos */}
         <div
+          id="stat-card-momentos"
           onClick={() => onNavigate('momentos')}
-          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-amber-300 transition cursor-pointer group"
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-amber-400 active:scale-[0.98] transition cursor-pointer group"
+          title="Clique para abrir a galeria e mural de momentos"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:bg-amber-100 transition">
               <Image className="w-5 h-5" />
             </div>
             <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
@@ -232,6 +284,10 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           </div>
           <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
             <div className="h-full bg-amber-500 rounded-full" style={{ width: '80%' }} />
+          </div>
+          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-amber-700 font-semibold group-hover:translate-x-0.5 transition">
+            <span>Ver Mural de Fotos</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </div>
       </div>
@@ -278,17 +334,19 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 pt-2 md:pt-0">
               <button
+                type="button"
                 onClick={() => onOpenEvaluation(todayWorkshop)}
-                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs"
+                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <Star className="w-4 h-4 fill-slate-950" />
                 Avaliar Oficina
               </button>
               <button
+                type="button"
                 onClick={() => onNavigate('cronograma')}
-                className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 Ver Cronograma Completo
                 <ArrowRight className="w-4 h-4" />

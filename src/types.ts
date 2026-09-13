@@ -23,9 +23,11 @@ export interface AttendanceRecord {
   time: string;
   hours: number;
   status: AttendanceStatus;
-  checkInMethod?: 'biometria_facial' | 'qr_code' | 'manual' | 'online_ead';
+  checkInMethod?: 'biometria_facial' | 'qr_code' | 'manual' | 'online_ead' | 'batch_simultaneo';
   checkInTime?: string;
   location: string;
+  isSimultaneous?: boolean;
+  simultaneousGroupId?: string;
 }
 
 export interface WorkshopEvaluation {
@@ -126,6 +128,31 @@ export interface ChatMessage {
   speakerAvatar?: string;
 }
 
+export type UserRole = 'aluno' | 'professor';
+
+export interface TeacherProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  registration: string; // Matrícula funcional SEDUC
+  polo: string;
+  avatarUrl: string;
+  institution: string;
+}
+
+export interface ClassStudent {
+  id: string;
+  name: string;
+  matricula: string;
+  email: string;
+  avatarUrl: string;
+  school: string;
+  totalPresentHours: number;
+  attendanceRate: number;
+  attendanceByWorkshop: Record<string, AttendanceStatus>;
+}
+
 export type NavigationTab = 
   | 'visao_geral'
   | 'frequencia'
@@ -135,4 +162,33 @@ export type NavigationTab =
   | 'atividades'
   | 'momentos'
   | 'evolucao'
-  | 'certificacao';
+  | 'certificacao'
+  | 'area_professor';
+
+export type NotificationType = 'workshop' | 'deadline' | 'announcement';
+
+export interface PushNotificationItem {
+  id: string;
+  title: string;
+  body: string;
+  type: NotificationType;
+  targetStudentId?: string; // 'all' or studentId
+  targetTab?: NavigationTab;
+  date: string;
+  read: boolean;
+  priority?: 'high' | 'normal';
+  metadata?: {
+    workshopId?: string;
+    workshopDate?: string;
+    activityId?: string;
+    deadlineDate?: string;
+  };
+}
+
+export interface FCMTokenRecord {
+  token: string;
+  studentId: string;
+  device: string;
+  updatedAt: string;
+  active: boolean;
+}

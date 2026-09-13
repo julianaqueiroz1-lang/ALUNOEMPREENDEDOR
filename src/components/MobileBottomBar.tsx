@@ -1,32 +1,45 @@
 import React from 'react';
-import { NavigationTab } from '../types';
+import { NavigationTab, UserRole } from '../types';
 import {
   GraduationCap,
   Calendar,
   CheckSquare,
   MessageSquare,
   FileCheck,
-  Menu
+  Menu,
+  FileSpreadsheet
 } from 'lucide-react';
 
 interface MobileBottomBarProps {
   currentTab: NavigationTab;
   onSelectTab: (tab: NavigationTab) => void;
   onOpenMenu: () => void;
+  userRole?: UserRole;
 }
 
 export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
   currentTab,
   onSelectTab,
   onOpenMenu,
+  userRole = 'aluno',
 }) => {
-  const tabs: { id: NavigationTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  const studentTabs: { id: NavigationTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'visao_geral', label: 'Início', icon: GraduationCap },
     { id: 'cronograma', label: 'Oficinas', icon: Calendar },
     { id: 'frequencia', label: 'Presença', icon: CheckSquare },
     { id: 'chat_duvidas', label: 'Mentor IA', icon: MessageSquare },
     { id: 'certificacao', label: 'Certificado', icon: FileCheck },
   ];
+
+  const teacherTabs: { id: NavigationTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: 'area_professor', label: 'Diário Docente', icon: FileSpreadsheet },
+    { id: 'frequencia', label: 'Chamada', icon: CheckSquare },
+    { id: 'cronograma', label: 'Oficinas', icon: Calendar },
+    { id: 'chat_duvidas', label: 'Tira-Dúvidas', icon: MessageSquare },
+    { id: 'certificacao', label: 'SEDUC', icon: FileCheck },
+  ];
+
+  const tabs = userRole === 'professor' ? teacherTabs : studentTabs;
 
   return (
     <nav

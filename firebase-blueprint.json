@@ -79,6 +79,37 @@
         "messageCount": { "type": "number" }
       },
       "required": ["sessionId", "createdAt"]
+    },
+    "FCMToken": {
+      "title": "FCMToken",
+      "description": "Token de registro FCM para envio de notificações push no dispositivo do aluno",
+      "type": "object",
+      "properties": {
+        "token": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "userAgent": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "platform": { "type": "string" }
+      },
+      "required": ["token", "studentId"]
+    },
+    "PushNotification": {
+      "title": "PushNotification",
+      "description": "Notificação push alertando sobre oficinas agendadas ou prazos de atividades",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "type": { "type": "string" },
+        "targetTab": { "type": "string" },
+        "date": { "type": "string" },
+        "read": { "type": "boolean" },
+        "deliveredViaPush": { "type": "boolean" }
+      },
+      "required": ["title", "body", "type"]
     }
   },
   "firestore": {
@@ -101,6 +132,14 @@
     "/chat_sessions/{sessionId}": {
       "schema": "ChatSession",
       "description": "Sessões limpas do assistente educacional"
+    },
+    "/fcm_tokens/{tokenId}": {
+      "schema": "FCMToken",
+      "description": "Tokens de dispositivos registrados no Firebase Cloud Messaging"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "PushNotification",
+      "description": "Histórico e feed de notificações push dos alunos"
     }
   }
 }

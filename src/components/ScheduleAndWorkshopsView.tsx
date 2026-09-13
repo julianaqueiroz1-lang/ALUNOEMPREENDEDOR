@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Workshop } from '../types';
+import { Workshop, AttendanceRecord } from '../types';
 import {
   Calendar,
   Clock,
@@ -18,7 +18,13 @@ import {
   Trash2,
   X,
   Upload,
-  FolderOpen
+  FolderOpen,
+  Columns,
+  List,
+  Zap,
+  CheckSquare,
+  Building2,
+  ShieldCheck
 } from 'lucide-react';
 
 interface ScheduleAndWorkshopsViewProps {
@@ -26,6 +32,9 @@ interface ScheduleAndWorkshopsViewProps {
   onOpenEvaluation: (workshop: Workshop) => void;
   onGoToSpeakers: () => void;
   onUpdateWorkshop?: (workshop: Workshop) => void;
+  attendanceRecords?: AttendanceRecord[];
+  onBatchCheckIn?: (workshopIds: string[]) => void;
+  onCheckInNow?: (workshopId: string) => void;
 }
 
 export const ScheduleAndWorkshopsView: React.FC<ScheduleAndWorkshopsViewProps> = ({
@@ -33,9 +42,14 @@ export const ScheduleAndWorkshopsView: React.FC<ScheduleAndWorkshopsViewProps> =
   onOpenEvaluation,
   onGoToSpeakers,
   onUpdateWorkshop,
+  attendanceRecords = [],
+  onBatchCheckIn,
+  onCheckInNow,
 }) => {
   const [activeFilter, setActiveFilter] = useState<'todos' | 'hoje' | 'concluida' | 'proxima'>('todos');
+  const [viewLayout, setViewLayout] = useState<'lista' | 'salas_concorrentes'>('lista');
   const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
+  const [batchActionNotice, setBatchActionNotice] = useState<string | null>(null);
 
   // Modal for teacher to feed/upload material
   const [uploadModalWorkshop, setUploadModalWorkshop] = useState<Workshop | null>(null);
@@ -44,6 +58,22 @@ export const ScheduleAndWorkshopsView: React.FC<ScheduleAndWorkshopsViewProps> =
   const [materialSize, setMaterialSize] = useState('2.4 MB');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const simultaneousWorkshops = workshops.filter((w) => w.isSimultaneous);
+  const simultaneousIds = simultaneousWorkshops.map((w) => w.id);
+  const attendedSimultaneousCount = attendanceRecords.filter(
+    (r) => simultaneousIds.includes(r.workshopId) && r.status === 'presente'
+  ).length;
+  const isAllSimultaneousAttended =
+    simultaneousWorkshops.length > 0 && attendedSimultaneousCount === simultaneousWorkshops.length;
+
+  const handleRunBatchCheckIn = () => {
+    if (onBatchCheckIn && simultaneousIds.length > 0) {
+      onBatchCheckIn(simultaneousIds);
+      setBatchActionNotice(`Check-in em lote confirmado para as ${simultaneousIds.length} oficinas simultâneas!`);
+      setTimeout(() => setBatchActionNotice(null), 4500);
+    }
+  };
 
   const filteredWorkshops = workshops.filter((w) => {
     if (activeFilter === 'todos') return true;
@@ -152,29 +182,251 @@ export const ScheduleAndWorkshopsView: React.FC<ScheduleAndWorkshopsViewProps> =
         </div>
       )}
 
+      {batchActionNotice && (
+        <div className="p-3.5 bg-teal-50 border border-teal-300 rounded-xl text-xs font-semibold text-teal-900 flex items-center justify-between animate-fadeIn">
+          <span className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-teal-600" />
+            {batchActionNotice}
+          </span>
+          <span className="text-[11px] text-teal-700">Sincronizado</span>
+        </div>
+      )}
+
+      {/* Concurrent Workshops Banner & 1-Click Batch Check-in */}
+      {simultaneousWorkshops.length > 0 && (
+        <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white rounded-2xl p-5 border border-emerald-800/60 shadow-md">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 flex items-center gap-1">
+                  <Zap className="w-3.5 h-3.5 fill-emerald-300" />
+                  Sessões Simultâneas no Polo SASP
+                </span>
+                <span className="text-xs text-slate-300 font-medium">Hoje • 18h às 21h</span>
+              </div>
+              <h3 className="text-base font-bold font-['Space_Grotesk'] text-white">
+                {simultaneousWorkshops.length} Oficinas Concorrentes em Andamento
+              </h3>
+              <p className="text-xs text-slate-300 max-w-2xl">
+                As turmas acontecem simultaneamente nas salas e laboratórios do polo. Você pode comparar os temas lado a lado ou confirmar a presença de uma só vez.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setViewLayout(viewLayout === 'salas_concorrentes' ? 'lista' : 'salas_concorrentes')}
+                className={`px-3.5 py-2 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer ${
+                  viewLayout === 'salas_concorrentes'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                }`}
+              >
+                <Columns className="w-3.5 h-3.5" />
+                <span>{viewLayout === 'salas_concorrentes' ? 'Ver em Lista Padrão' : 'Ver Salas Lado a Lado'}</span>
+              </button>
+
+              {!isAllSimultaneousAttended ? (
+                <button
+                  type="button"
+                  onClick={handleRunBatchCheckIn}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 text-xs font-black rounded-xl shadow-md transition flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                >
+                  <Zap className="w-3.5 h-3.5 fill-current" />
+                  <span>Check-in em Lote ({simultaneousWorkshops.length} Salas)</span>
+                </button>
+              ) : (
+                <span className="px-3.5 py-2 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-500/30 flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  Presenças Confirmadas ({attendedSimultaneousCount}/{simultaneousWorkshops.length})
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Side-by-Side Comparison Layout for Concurrent Workshops */}
+      {viewLayout === 'salas_concorrentes' ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-emerald-700" />
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">
+                  Comparador de Salas & Oficinas Concorrentes (Polo SASP)
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Visualização simultânea de temas, salas físicas e professores das 18h às 21h
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setViewLayout('lista')}
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+            >
+              Voltar à Lista Geral
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {simultaneousWorkshops.map((workshop, idx) => {
+              const attendance = attendanceRecords.find((r) => r.workshopId === workshop.id);
+              const isPresent = attendance?.status === 'presente';
+
+              // Assign visual palette per room
+              const roomTheme =
+                idx === 0
+                  ? { border: 'border-emerald-300', badge: 'bg-emerald-100 text-emerald-900', light: 'bg-emerald-50/50' }
+                  : idx === 1
+                  ? { border: 'border-teal-300', badge: 'bg-teal-100 text-teal-900', light: 'bg-teal-50/50' }
+                  : { border: 'border-indigo-300', badge: 'bg-indigo-100 text-indigo-900', light: 'bg-indigo-50/50' };
+
+              return (
+                <div
+                  key={workshop.id}
+                  className={`bg-white rounded-2xl border-2 ${roomTheme.border} shadow-sm overflow-hidden flex flex-col justify-between`}
+                >
+                  <div className="p-5 space-y-4">
+                    {/* Header room tag */}
+                    <div className="flex items-center justify-between">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-extrabold ${roomTheme.badge} flex items-center gap-1`}>
+                        <Building2 className="w-3.5 h-3.5" />
+                        Sala 0{idx + 1}
+                      </span>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-900">
+                        18h às 21h (3h)
+                      </span>
+                    </div>
+
+                    {/* Location and Title */}
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold mb-1">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{workshop.location}</span>
+                      </div>
+                      <h3 className="text-base font-bold font-['Space_Grotesk'] text-slate-900 leading-snug">
+                        {workshop.title}
+                      </h3>
+                    </div>
+
+                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                      {workshop.description}
+                    </p>
+
+                    {/* Speaker Info */}
+                    <div className={`p-3 rounded-xl ${roomTheme.light} border border-slate-200/80 flex items-center gap-3`}>
+                      <img
+                        src={workshop.speakerPhoto}
+                        alt={workshop.speaker}
+                        className="w-10 h-10 rounded-full object-cover ring-2 ring-white"
+                      />
+                      <div className="text-xs">
+                        <span className="font-bold text-slate-900 block">{workshop.speaker}</span>
+                        <span className="text-[11px] text-slate-600 block">{workshop.speakerRole}</span>
+                      </div>
+                    </div>
+
+                    {/* Materials pill */}
+                    <div className="pt-2 border-t border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                        Material de Apoio ({workshop.materials.length})
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {workshop.materials.slice(0, 2).map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => handleDownloadMaterial(m.title)}
+                            className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold rounded-lg flex items-center gap-1 transition"
+                          >
+                            <Download className="w-3 h-3 text-slate-500" />
+                            <span className="truncate max-w-[120px]">{m.title}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Attendance Card Footer */}
+                  <div className="p-4 bg-slate-50 border-t border-slate-200/80 flex items-center justify-between gap-2">
+                    {isPresent ? (
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <span>Presença Confirmada (3h)</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onCheckInNow && onCheckInNow(workshop.id)}
+                        className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>Registrar Presença nesta Sala</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
       {/* Filters Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <span className="text-xs font-semibold text-slate-500 mr-1 flex items-center gap-1">
-          <Filter className="w-3.5 h-3.5" /> Status:
-        </span>
-        {[
-          { id: 'todos', label: 'Todas as Oficinas' },
-          { id: 'hoje', label: 'Acontecendo Hoje' },
-          { id: 'concluida', label: 'Já Concluídas' },
-          { id: 'proxima', label: 'Próximas Sessões' },
-        ].map((item) => (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <span className="text-xs font-semibold text-slate-500 mr-1 flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5" /> Status:
+          </span>
+          {[
+            { id: 'todos', label: 'Todas as Oficinas' },
+            { id: 'hoje', label: 'Acontecendo Hoje' },
+            { id: 'concluida', label: 'Já Concluídas' },
+            { id: 'proxima', label: 'Próximas Sessões' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveFilter(item.id as any)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                activeFilter === item.id
+                  ? 'bg-emerald-700 text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Layout Switcher */}
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
           <button
-            key={item.id}
-            onClick={() => setActiveFilter(item.id as any)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-              activeFilter === item.id
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            type="button"
+            onClick={() => setViewLayout('lista')}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition flex items-center gap-1 ${
+              viewLayout === 'lista'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            {item.label}
+            <List className="w-3.5 h-3.5" />
+            <span>Lista</span>
           </button>
-        ))}
+          <button
+            type="button"
+            onClick={() => setViewLayout('salas_concorrentes')}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition flex items-center gap-1 ${
+              viewLayout === 'salas_concorrentes'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Columns className="w-3.5 h-3.5" />
+            <span>Salas Lado a Lado ({simultaneousWorkshops.length})</span>
+          </button>
+        </div>
       </div>
 
       {/* Workshop Cards Grid */}

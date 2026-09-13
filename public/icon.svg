@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065f46" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGradient)" />
+
+  <!-- Subtle inner border ring -->
+  <rect x="24" y="24" width="464" height="464" rx="92" fill="none" stroke="#34d399" stroke-width="4" stroke-opacity="0.3" />
+
+  <!-- Center Icon Group: Graduation Cap + Rocket / Lightbulb / Star of Entrepreneurship -->
+  <g transform="translate(106, 100)" filter="url(#shadow)">
+    <!-- Graduation Cap Top (Diamond) -->
+    <path d="M150 40 L280 100 L150 160 L20 100 Z" fill="#ffffff" />
+    
+    <!-- Cap Under-band -->
+    <path d="M60 120 L60 175 C60 215 240 215 240 175 L240 120 L150 160 Z" fill="#e2e8f0" opacity="0.9" />
+    
+    <!-- Tassel -->
+    <path d="M260 105 L275 140 L275 220" fill="none" stroke="url(#goldGradient)" stroke-width="8" stroke-linecap="round" />
+    <circle cx="275" cy="225" r="8" fill="#fbbf24" />
+
+    <!-- Entrepreneur Sparkles / Upward Growth Arrow -->
+    <g transform="translate(90, 180)">
+      <!-- Rocket / Growth Arrow Emblem -->
+      <path d="M60 10 L100 70 L75 70 L75 110 L45 110 L45 70 L20 70 Z" fill="url(#goldGradient)" />
+      <circle cx="60" cy="45" r="8" fill="#ffffff" />
+    </g>
+  </g>
+
+  <!-- CE Flag / Program Badge at bottom -->
+  <text x="256" y="435" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="34" letter-spacing="4" fill="#ffffff">ALUNO EMPREENDEDOR</text>
+  <text x="256" y="468" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="20" letter-spacing="2" fill="#a7f3d0">SEDUC CEARÁ</text>
+</svg>

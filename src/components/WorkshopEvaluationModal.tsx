@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Workshop, WorkshopEvaluation } from '../types';
-import { Star, X, CheckCircle, MessageSquare, Award, Sparkles } from 'lucide-react';
+import { Star, X, CheckCircle, MessageSquare, Award, Sparkles, Database } from 'lucide-react';
 
 interface WorkshopEvaluationModalProps {
   workshop: Workshop;
@@ -133,22 +133,28 @@ export const WorkshopEvaluationModal: React.FC<WorkshopEvaluationModalProps> = (
           </div>
 
           {/* Submit Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-2"
-            >
-              <CheckCircle className="w-4 h-4" />
-              {isSubmitting ? 'Gravando Avaliação...' : 'Enviar Avaliação'}
-            </button>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-700">
+              <Database className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+              <span>Sincronização direta na nuvem Firestore</span>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                {isSubmitting ? 'Gravando no Firestore...' : 'Enviar Avaliação'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

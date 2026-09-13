@@ -6,6 +6,7 @@ import {
   ComplementaryActivity,
   MomentPost,
   NavigationTab,
+  PushNotificationItem,
 } from '../types';
 import {
   Sparkles,
@@ -21,7 +22,9 @@ import {
   Clock,
   MapPin,
   ChevronRight,
-  Star
+  Star,
+  Bell,
+  BellRing
 } from 'lucide-react';
 
 interface OverviewDashboardProps {
@@ -35,6 +38,8 @@ interface OverviewDashboardProps {
   onNavigate: (tab: NavigationTab) => void;
   onOpenEvaluation: (workshop: Workshop) => void;
   onCheckInNow: (workshopId: string) => void;
+  notifications?: PushNotificationItem[];
+  onOpenNotifications?: () => void;
 }
 
 export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
@@ -48,6 +53,8 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   onNavigate,
   onOpenEvaluation,
   onCheckInNow,
+  notifications = [],
+  onOpenNotifications,
 }) => {
   const [isWorkloadModalOpen, setIsWorkloadModalOpen] = React.useState(false);
   const [tempHours, setTempHours] = React.useState(courseWorkloadHours);
@@ -157,6 +164,45 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Push Notifications & Deadlines Banner (FCM) */}
+      {notifications.length > 0 && (
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <BellRing className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-900">
+                  Notificações Push FCM & Prazos
+                </span>
+                {notifications.filter((n) => !n.read).length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">
+                    {notifications.filter((n) => !n.read).length} novas
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-600 truncate max-w-lg">
+                {notifications[0]?.title || 'Acompanhe novos agendamentos de oficinas e vencimentos de atividades.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-center">
+            {onOpenNotifications && (
+              <button
+                type="button"
+                onClick={onOpenNotifications}
+                className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition active:scale-95 flex items-center gap-1.5"
+              >
+                <span>Ver Notificações</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 4 Summary Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

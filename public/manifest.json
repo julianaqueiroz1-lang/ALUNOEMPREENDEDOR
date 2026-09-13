@@ -1,0 +1,63 @@
+{
+  "id": "/",
+  "name": "Aluno Empreendedor",
+  "short_name": "AlunoEmp",
+  "description": "Plataforma oficial do Aluno Empreendedor da SEDUC Ceará com frequência biométrica, diário de classe, certificação e cronograma de oficinas.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#065f46",
+  "theme_color": "#047857",
+  "lang": "pt-BR",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cronograma de Oficinas",
+      "short_name": "Oficinas",
+      "description": "Visualizar cronograma e oficinas do programa",
+      "url": "/?tab=cronograma",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Check-in Biométrico",
+      "short_name": "Check-in",
+      "description": "Registrar presença com reconhecimento facial",
+      "url": "/?tab=frequencia",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Certificado SEDUC",
+      "short_name": "Certificado",
+      "description": "Consultar e emitir certificado oficial",
+      "url": "/?tab=certificado",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -35,6 +35,32 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', app: 'Aluno Empreendedor API' });
 });
 
+// Push notification dispatch endpoint (FCM Integration API)
+app.post('/api/notifications/dispatch', (req, res) => {
+  const { title, body, type, targetTab, metadata } = req.body;
+
+  if (!title || !body) {
+    return res.status(400).json({ error: 'Título e corpo da notificação são obrigatórios.' });
+  }
+
+  const notification = {
+    id: `server_notif_${Date.now()}`,
+    title,
+    body,
+    type: type || 'announcement',
+    targetTab: targetTab || 'cronograma',
+    date: new Date().toISOString(),
+    metadata: metadata || {},
+  };
+
+  console.log('[Server FCM Dispatch] Notificação despachada via API:', notification);
+  return res.json({
+    success: true,
+    message: 'Notificação push disparada com sucesso para os alunos inscritos.',
+    notification,
+  });
+});
+
 // Chat Tira Dúvidas endpoint
 app.post('/api/chat', async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 {
   "name": "Aluno Empreendedor",
-  "description": "Plataforma do Aluno Empreendedor com login biométrico facial, frequência, cronograma de oficinas, avaliação, palestrantes, chat tira-dúvidas inteligente, atividades complementares, mural de momentos, evolução do curso e emissão de certificado validado por CPF.",
+  "description": "Plataforma PWA instalável do Aluno Empreendedor com visão do Aluno e Professor/Coordenação SEDUC, dashboard Recharts, chamada em lote, materiais, biometria facial, push FCM e suporte offline.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

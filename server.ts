@@ -1,5 +1,21 @@
-import express from 'express';
+import module from 'node:module';
 import path from 'path';
+
+// Safeguard for Node 22 createRequire('.') in ESM tools / vite-plugin-pwa
+if (typeof module !== 'undefined' && module.createRequire) {
+  const origCreateRequire = module.createRequire;
+  module.createRequire = function (filename: any) {
+    if (
+      filename === '.' ||
+      (typeof filename === 'string' && !path.isAbsolute(filename) && !filename.startsWith('file:'))
+    ) {
+      filename = path.resolve(process.cwd(), filename || '.');
+    }
+    return origCreateRequire.call(this, filename);
+  };
+}
+
+import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
@@ -137,7 +153,10 @@ function getEntrepreneurshipFallbackReply(query: string): string {
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);

@@ -1,6 +1,130 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <script>
+      // Intercept WebSocket and console notices for Vite in AI Studio iframe environment
+      (function() {
+      if (typeof window === 'undefined') return;
+
+      // 1. Intercept WebSocket for vite-hmr so no failed connection errors are logged
+      var NativeWebSocket = window.WebSocket;
+      if (NativeWebSocket) {
+        var FakeViteWebSocket = function(url, protocols) {
+          var isVite = false;
+          try {
+            var strUrl = String(url || '');
+            if (
+              protocols === 'vite-hmr' ||
+              (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1) ||
+              strUrl.indexOf('vite-hmr') !== -1 ||
+              strUrl.indexOf('token=') !== -1
+            ) {
+              isVite = true;
+            }
+          } catch (e) {}
+
+          if (isVite) {
+            var listeners = {};
+            var fake = {
+              binaryType: 'blob',
+              bufferedAmount: 0,
+              extensions: '',
+              protocol: 'vite-hmr',
+              readyState: 1, // WebSocket.OPEN
+              url: String(url),
+              CONNECTING: 0,
+              OPEN: 1,
+              CLOSING: 2,
+              CLOSED: 3,
+              onopen: null,
+              onclose: null,
+              onerror: null,
+              onmessage: null,
+              send: function() {},
+              close: function() {
+                fake.readyState = 3;
+              },
+              addEventListener: function(type, fn) {
+                listeners[type] = listeners[type] || [];
+                listeners[type].push(fn);
+                if (type === 'open') {
+                  setTimeout(function() {
+                    var ev = new Event('open');
+                    if (typeof fn === 'function') fn(ev);
+                    else if (fn && fn.handleEvent) fn.handleEvent(ev);
+                  }, 0);
+                }
+              },
+              removeEventListener: function(type, fn) {
+                if (!listeners[type]) return;
+                listeners[type] = listeners[type].filter(function(item) { return item !== fn; });
+              },
+              dispatchEvent: function(ev) {
+                var list = listeners[ev.type] || [];
+                list.forEach(function(fn) {
+                  if (typeof fn === 'function') fn(ev);
+                  else if (fn && fn.handleEvent) fn.handleEvent(ev);
+                });
+                return true;
+              }
+            };
+            return fake;
+          }
+          return new NativeWebSocket(url, protocols);
+        };
+
+        FakeViteWebSocket.prototype = NativeWebSocket.prototype;
+        FakeViteWebSocket.CONNECTING = 0;
+        FakeViteWebSocket.OPEN = 1;
+        FakeViteWebSocket.CLOSING = 2;
+        FakeViteWebSocket.CLOSED = 3;
+        window.WebSocket = FakeViteWebSocket;
+      }
+
+      // 2. Intercept and silence any [vite] console logs
+      var origError = console.error;
+      var origWarn = console.warn;
+      var origInfo = console.info;
+
+      function isVite(arg) {
+        if (!arg) return false;
+        var str = typeof arg === 'string' ? arg : (arg.message || (arg.reason && arg.reason.message) || String(arg));
+        return str.indexOf('[vite]') !== -1 || str.indexOf('vite-hmr') !== -1 || str.indexOf('websocket') !== -1 || str.indexOf('WebSocket') !== -1;
+      }
+
+      console.error = function() {
+        for (var i = 0; i < arguments.length; i++) {
+          if (isVite(arguments[i])) return;
+        }
+        origError.apply(console, arguments);
+      };
+      console.warn = function() {
+        for (var i = 0; i < arguments.length; i++) {
+          if (isVite(arguments[i])) return;
+        }
+        origWarn.apply(console, arguments);
+      };
+      console.info = function() {
+        for (var i = 0; i < arguments.length; i++) {
+          if (isVite(arguments[i])) return;
+        }
+        origInfo.apply(console, arguments);
+      };
+
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event && (isVite(event.reason) || isVite(event.message))) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+      window.addEventListener('error', function(event) {
+        if (event && (isVite(event.message) || isVite(event.error))) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aluno Empreendedor</title>

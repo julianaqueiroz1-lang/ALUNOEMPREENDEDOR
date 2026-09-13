@@ -33,9 +33,11 @@ import {
   Sparkles,
   Award,
   BellRing,
-  BarChart3
+  BarChart3,
+  Database
 } from 'lucide-react';
 import { TeacherMetricsDashboard } from './TeacherMetricsDashboard';
+import { DatabaseIntegrationCard } from './DatabaseIntegrationCard';
 
 interface TeacherDashboardViewProps {
   teacher: TeacherProfile;
@@ -56,7 +58,7 @@ export const TeacherDashboardView: React.FC<TeacherDashboardViewProps> = ({
   onSendAnnouncement,
   onSwitchRole,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'metricas' | 'chamada' | 'materiais' | 'comunicados' | 'relatorio'>('metricas');
+  const [activeSubTab, setActiveSubTab] = useState<'metricas' | 'chamada' | 'materiais' | 'comunicados' | 'relatorio' | 'banco_dados'>('metricas');
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<string>(workshops[0]?.id || 'ws-1');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'todos' | 'em_risco' | 'aprovados'>('todos');
@@ -351,6 +353,7 @@ export const TeacherDashboardView: React.FC<TeacherDashboardViewProps> = ({
           { id: 'materiais', label: 'Alimentar Materiais & Apostilas', icon: Upload },
           { id: 'comunicados', label: 'Mural de Avisos & Push', icon: BellRing },
           { id: 'relatorio', label: 'Relatório Consolidado SEDUC', icon: Printer },
+          { id: 'banco_dados', label: 'Supabase & Migrações SQL', icon: Database },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -980,6 +983,14 @@ export const TeacherDashboardView: React.FC<TeacherDashboardViewProps> = ({
             <span>Autenticação Digital SEDUC • {new Date().toLocaleDateString('pt-BR')}</span>
           </div>
         </div>
+      )}
+
+      {/* TAB 5: SUPABASE & MIGRAÇÕES SQL */}
+      {activeSubTab === 'banco_dados' && (
+        <DatabaseIntegrationCard
+          students={students}
+          workshops={workshops}
+        />
       )}
     </div>
   );

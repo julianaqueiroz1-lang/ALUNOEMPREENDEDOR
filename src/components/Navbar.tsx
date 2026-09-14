@@ -34,6 +34,7 @@ import {
   flushOfflineQueue,
   OfflineSyncStatus
 } from '../services/firestorePersistenceService';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
@@ -220,6 +221,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Database className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span className="text-[11px] font-semibold text-slate-700">Firestore Conectado</span>
               </div>
+            )}
+
+            {/* Supabase Indicator Button */}
+            {isSupabaseConfigured() && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSwitchRole('professor');
+                  onSelectTab('area_professor');
+                }}
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-semibold transition cursor-pointer"
+                title="Supabase PostgreSQL Ativo. Clique para abrir Migrações & Banco"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                <span className="text-[11px] font-bold">Supabase</span>
+              </button>
             )}
 
             {/* In-App PWA Install Button */}

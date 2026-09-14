@@ -1,3 +1,4 @@
+import fs from 'fs';
 import module from 'node:module';
 import path from 'path';
 
@@ -15,12 +16,49 @@ if (typeof module !== 'undefined' && module.createRequire) {
   };
 }
 
+try {
+  const pwaPath = path.resolve(process.cwd(), 'node_modules/vite-plugin-pwa/dist/index.js');
+  if (fs.existsSync(pwaPath)) {
+    let pwaCode = fs.readFileSync(pwaPath, 'utf8');
+    let patched = false;
+    if (pwaCode.includes('var _dirname = typeof __dirname !== "undefined" ? __dirname : dirname(fileURLToPath(import.meta.url));')) {
+      pwaCode = pwaCode.replace(
+        'var _dirname = typeof __dirname !== "undefined" ? __dirname : dirname(fileURLToPath(import.meta.url));',
+        'var _dirname = dirname(fileURLToPath(import.meta.url));'
+      );
+      patched = true;
+    }
+    if (pwaCode.includes('const _dirname2 = typeof __dirname !== "undefined" ? __dirname : dirname2(fileURLToPath2(import.meta.url));')) {
+      pwaCode = pwaCode.replace(
+        'const _dirname2 = typeof __dirname !== "undefined" ? __dirname : dirname2(fileURLToPath2(import.meta.url));',
+        'const _dirname2 = dirname2(fileURLToPath2(import.meta.url));'
+      );
+      patched = true;
+    }
+    if (patched) {
+      fs.writeFileSync(pwaPath, pwaCode, 'utf8');
+    }
+  }
+} catch {
+  // Ignored
+}
+
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
+
+// Auto-correct inverted Supabase environment variables if user swapped them in settings
+if (
+  process.env.VITE_SUPABASE_ANON_KEY?.startsWith('http') &&
+  !process.env.VITE_SUPABASE_URL?.startsWith('http')
+) {
+  const temp = process.env.VITE_SUPABASE_URL;
+  process.env.VITE_SUPABASE_URL = process.env.VITE_SUPABASE_ANON_KEY;
+  process.env.VITE_SUPABASE_ANON_KEY = temp;
+}
 
 const app = express();
 const PORT = 3000;
@@ -159,6 +197,87 @@ async function startServer() {
       },
       appType: 'spa',
     });
+
+    // Custom clean Vite client without WebSocket reconnect errors in sandboxed AI Studio iframe
+    app.get('/@vite/client', (_req, res) => {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.send(`
+import "/node_modules/vite/dist/client/env.mjs";
+
+const sheetsMap = new Map();
+if (typeof document !== 'undefined') {
+  document.querySelectorAll('style[data-vite-dev-id]').forEach((el) => {
+    sheetsMap.set(el.getAttribute('data-vite-dev-id'), el);
+  });
+}
+const cspNonce = typeof document !== 'undefined' ? document.querySelector('meta[property=csp-nonce]')?.nonce : void 0;
+let lastInsertedStyle;
+
+export function updateStyle(id, content) {
+  if (typeof document === 'undefined') return;
+  let style = sheetsMap.get(id);
+  if (!style) {
+    style = document.createElement('style');
+    style.setAttribute('type', 'text/css');
+    style.setAttribute('data-vite-dev-id', id);
+    style.textContent = content;
+    if (cspNonce) {
+      style.setAttribute('nonce', cspNonce);
+    }
+    if (!lastInsertedStyle) {
+      document.head.appendChild(style);
+      setTimeout(() => {
+        lastInsertedStyle = void 0;
+      }, 0);
+    } else {
+      lastInsertedStyle.insertAdjacentElement('afterend', style);
+    }
+    lastInsertedStyle = style;
+  } else {
+    style.textContent = content;
+  }
+  sheetsMap.set(id, style);
+}
+
+export function removeStyle(id) {
+  if (typeof document === 'undefined') return;
+  const style = sheetsMap.get(id);
+  if (style) {
+    document.head.removeChild(style);
+    sheetsMap.delete(id);
+  }
+}
+
+export function injectQuery(url, queryToInject) {
+  if (!url || (url[0] !== '.' && url[0] !== '/')) {
+    return url;
+  }
+  const pathname = url.replace(/[?#].*$/, '');
+  const { search, hash } = new URL(url, 'http://vite.dev');
+  return pathname + '?' + queryToInject + (search ? '&' + search.slice(1) : '') + (hash || '');
+}
+
+export class ErrorOverlay extends HTMLElement {}
+if (typeof customElements !== 'undefined' && !customElements.get('vite-error-overlay')) {
+  customElements.define('vite-error-overlay', ErrorOverlay);
+}
+
+export function createHotContext(ownerPath) {
+  return {
+    data: {},
+    accept(deps, cb) {},
+    acceptExports(names, cb) {},
+    dispose(cb) {},
+    prune(cb) {},
+    invalidate(message) {},
+    decline() {},
+    on(event, cb) {},
+    send(event, data) {}
+  };
+}
+      `);
+    });
+
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
